@@ -7,12 +7,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/a8m/envsubst"
 	"github.com/alecthomas/kingpin"
 	"github.com/gobuffalo/packr"
 	"github.com/goreleaser/nfpm"
 	_ "github.com/goreleaser/nfpm/deb"
 	_ "github.com/goreleaser/nfpm/rpm"
-	yaml "gopkg.in/yaml.v1"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v1"
 )
 
 var (
@@ -60,23 +62,29 @@ func doPackage(config, target string) error {
 	format := filepath.Ext(target)[1:]
 	bts, err := ioutil.ReadFile(config)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "error read config file '%s'", target)
 	}
+	bts, err = envsubst.Bytes(bts)
+	if err != nil {
+		return errors.Wrap(err, "error substituting environment variables")
+	}
+	fmt.Println(string(bts))
 
 	var info nfpm.Info
 	err = yaml.Unmarshal(bts, &info)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error parsing yml configuration")
 	}
 	fmt.Printf("using %s packager...\n", format)
 	pkg, err := nfpm.Get(format)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "cannot use packager '%s'", format)
 	}
 
 	f, err := os.Create(target)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "cannot create target file '%s'", target)
 	}
-	return pkg.Package(info, f)
+	err = pkg.Package(info, f)
+	return errors.Wrapf(err, "packager '%s' failed", format)
 }

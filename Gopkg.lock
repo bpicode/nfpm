@@ -2,6 +2,15 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/a8m/envsubst"
+  packages = [
+    ".",
+    "parse"
+  ]
+  revision = "4e0f64a42fec73af422e6c6f4daae9c4aaf66cb0"
+
+[[projects]]
   name = "github.com/alecthomas/kingpin"
   packages = ["."]
   revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
@@ -41,10 +50,10 @@
   version = "v1.10.4"
 
 [[projects]]
+  branch = "master"
   name = "github.com/pkg/errors"
   packages = ["."]
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "30136e27e2ac8d167177e8a583aa4c3fea5be833"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -67,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "390b14a0b40ecd556f19ac89f571d9caa1af22832a33c9cc10174001c04ab386"
+  inputs-digest = "2dddfe2eee2b5f5d239d49abf304bd78c481f0d404821fe927a9799600b8ee8c"
   solver-name = "gps-cdcl"
   solver-version = 1
