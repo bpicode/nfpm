@@ -85,6 +85,6 @@ func doPackage(config, target string) error {
 	if err != nil {
 		return errors.Wrapf(err, "cannot create target file '%s'", target)
 	}
-	err = pkg.Package(info, f)
+	err = pkg.Package(nfpm.WithDefaults(info), f)
 	return errors.Wrapf(err, "packager '%s' failed", format)
 }
