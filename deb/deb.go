@@ -40,23 +40,37 @@ func (*Deb) Package(info nfpm.Info, deb io.Writer) (err error) {
 	if err != nil {
 		return err
 	}
+
+	signer := &signer{info: info}
+
 	var w = ar.NewWriter(deb)
 	if err := w.WriteGlobalHeader(); err != nil {
 		return errors.Wrap(err, "cannot write ar header to deb file")
 	}
-	if err := addArFile(w, "debian-binary", []byte("2.0\n")); err != nil {
+	if err := addArFile(w, "debian-binary", []byte("2.0\n"), signer); err != nil {
 		return errors.Wrap(err, "cannot pack debian-binary")
 	}
-	if err := addArFile(w, "control.tar.gz", controlTarGz); err != nil {
+	if err := addArFile(w, "control.tar.gz", controlTarGz, signer); err != nil {
 		return errors.Wrap(err, "cannot add control.tar.gz to deb")
 	}
-	if err := addArFile(w, "data.tar.gz", dataTarGz); err != nil {
+	if err := addArFile(w, "data.tar.gz", dataTarGz, signer); err != nil {
 		return errors.Wrap(err, "cannot add data.tar.gz to deb")
+	}
+
+	signature, err := signer.sign()
+	if err != nil {
+		return errors.Wrap(err, "cannot sign deb package")
+	}
+	if len(signature) == 0 {
+		return nil
+	}
+	if err := addArFile(w, "_gpgorigin", signature, nil); err != nil {
+		return errors.Wrap(err, "cannot add _gpgorigin to deb")
 	}
 	return nil
 }
 
-func addArFile(w *ar.Writer, name string, body []byte) error {
+func addArFile(w *ar.Writer, name string, body []byte, signer *signer) error {
 	var header = ar.Header{
 		Name:    name,
 		Size:    int64(len(body)),
@@ -67,6 +81,11 @@ func addArFile(w *ar.Writer, name string, body []byte) error {
 		return errors.Wrap(err, "cannot write file header")
 	}
 	_, err := w.Write(body)
+
+
+	if signer != nil {
+		signer.add(name, body)
+	}
 	return err
 }
 

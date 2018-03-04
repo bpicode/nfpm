@@ -57,6 +57,9 @@ type Info struct {
 	Bindir      string            `yaml:"bindir,omitempty"`
 	Files       map[string]string `yaml:"files,omitempty"`
 	ConfigFiles map[string]string `yaml:"config_files,omitempty"`
+
+	DebSigningKey         string `yaml:"deb_signing_key,omitempty"`
+	DebSigningKeyPassword string `yaml:"deb_signing_key_password,omitempty"`
 }
 
 // WithDefaults set some sane defaults into the given Info

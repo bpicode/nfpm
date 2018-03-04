@@ -68,7 +68,6 @@ func doPackage(config, target string) error {
 	if err != nil {
 		return errors.Wrap(err, "error substituting environment variables")
 	}
-	fmt.Println(string(bts))
 
 	var info nfpm.Info
 	err = yaml.Unmarshal(bts, &info)

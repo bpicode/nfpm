@@ -1,0 +1,169 @@
+package deb
+
+import (
+	"testing"
+
+	"github.com/goreleaser/nfpm"
+	"github.com/stretchr/testify/assert"
+)
+
+// Do not use this key, do not trust this key.
+const heinrichHeinePk = `
+-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v1
+
+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
+=EC2T
+-----END PGP PRIVATE KEY BLOCK-----
+`
+
+// Do not use this key, do not trust this key.
+const heinrichHeinePkWithPassword = `
+-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v1
+
+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
+Y8YcDhEIvUE=
+=5X0q
+-----END PGP PRIVATE KEY BLOCK-----
+`
+
+func Test_sign(t *testing.T) {
+	s := signer{info:nfpm.Info{DebSigningKey: heinrichHeinePk}}
+	s.add("file", []byte("some content"))
+	signed, err := s.sign()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, signed)
+	assert.Containsf(t, string(signed), "Heinrich Heine", "uid should be present in signature")
+}
+
+
+func Test_sign_with_passphrase(t *testing.T) {
+	s := signer{info:nfpm.Info{DebSigningKey: heinrichHeinePkWithPassword, DebSigningKeyPassword: "password"}}
+	s.add("file", []byte("some content"))
+	signed, err := s.sign()
+	assert.NoError(t, err)
+	assert.NotEmpty(t, signed)
+	assert.Containsf(t, string(signed), "Heinrich Heine", "uid should be present in signature")
+}
+
+
+func Test_sign_with_garbage_key(t *testing.T) {
+	s := signer{info:nfpm.Info{DebSigningKey: "saffafasfaf"}}
+	s.add("file", []byte("some content"))
+	_, err := s.sign()
+	assert.Error(t, err)
+}
+
+
+func Test_sign_with_wrong_password(t *testing.T) {
+	s := signer{info:nfpm.Info{DebSigningKey: heinrichHeinePkWithPassword, DebSigningKeyPassword: "wrong password"}}
+	s.add("file", []byte("some content"))
+	_, err := s.sign()
+	assert.Error(t, err)
+	assert.Containsf(t, err.Error(), "password", "Expecting the error message to give a hint on the password")
+}
